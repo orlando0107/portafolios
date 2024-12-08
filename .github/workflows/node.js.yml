@@ -12,6 +12,9 @@ jobs:
       matrix:
         node-version: [22.x]
 
+    env:
+      NEXT_PUBLIC_API_URL: ${{ secret.NEXT_PUBLIC_URL }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
