@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-
     runs-on: self-hosted
 
     strategy:
@@ -14,12 +13,39 @@ jobs:
         node-version: [22.x]
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Cache npm dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-build-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-build-
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm i
-    - run: npm run build --if-present
-    - run: pm2 reaload 0
+    
+    - name: Install dependencies if needed
+      run: |
+        if [[ ! -d "node_modules" || $(git diff --name-only HEAD~1..HEAD | grep -E "package.json|package-lock.json") ]]; then
+          echo "Installing dependencies..."
+          npm install
+        else
+          echo "Dependencies are up to date."
+        fi
+
+    - name: Build the application if there are changes
+      run: |
+        if [[ $(git diff --name-only HEAD~1..HEAD | grep -E "src/|pages/|components/") ]]; then
+          echo "Building application..."
+          npm run build
+        else
+          echo "No changes in code, skipping build."
+        fi
+
+    - name: Reload PM2
+      run: pm2 reload 0
