@@ -22,3 +22,4 @@ jobs:
         cache: 'npm'
     - run: npm i
     - run: npm run build --if-present
+    - run: pm2 reaload 0
