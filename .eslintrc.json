@@ -1,3 +1,17 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:import/recommended",
+    "plugin:react/jsx-runtime"
+  ],
+  "plugins": [
+    "import"
+  ],
+  "rules": {
+    "import/no-unresolved": "error",
+    "import/named": "error",
+    "import/default": "error",
+    "import/export": "error"
+  }
 }
