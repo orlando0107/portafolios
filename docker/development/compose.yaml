@@ -7,11 +7,20 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      # Monta el código fuente para desarrollo
       - ../../:/app
+      # Mantén node_modules separado como volumen para evitar conflictos
       - /app/node_modules
     environment:
+      # Usa un archivo .env para las variables de entorno
       - ../../.env
-    command: ["npm", "run", "dev"]
+    command: >
+      sh -c "
+      if [ -f package-lock.json ]; then npm install;
+      elif [ -f yarn.lock ]; then yarn install;
+      elif [ -f pnpm-lock.yaml ]; then pnpm install;
+      fi &&
+      npm run dev"
     depends_on:
       - postgres
     networks:
@@ -35,6 +44,7 @@ services:
 
 volumes:
   postgres_portafolio:
+  node_modules:
 
 networks:
   portafolio:
